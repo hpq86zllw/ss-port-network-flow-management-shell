@@ -8,7 +8,10 @@ check-network-flow 检查端口流量，如果流量超过设置值（储存在p
 clear-network-flow [port] 端口流量清零  
 enable-port [port] 恢复被屏蔽的端口  
 ##使用说明  
-使用前运行init在iptables中添加自定义链，然后修改add-port，check-network-flow，clear-network-flow和enable-port中的SCRIPT_HOME变量为脚本根目录，再运行add-port [port]来添加要监控的ss端口，最后使用crontab为check-network-flow添加定时任务  
+1. 运行init在iptables中添加自定义链  
+2. 修改add-port，check-network-flow，clear-network-flow和enable-port中的SCRIPT_HOME变量为脚本根目录  
+3. 运行add-port [port]来添加要监控的ss端口  
+4. 使用crontab为check-network-flow添加定时任务  
 ##port.dat格式  
 监控端口 最大流量值（单位为bytes）  
 例子  
