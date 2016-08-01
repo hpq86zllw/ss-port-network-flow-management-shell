@@ -1,0 +1,7 @@
+CMD_HOME="/sbin"
+
+$CMD_HOME/iptables -N SS-INPUT
+$CMD_HOME/iptables -A INPUT -j SS-INPUT
+$CMD_HOME/iptables -N SS-OUTPUT
+$CMD_HOME/iptables -A OUTPUT -j SS-OUTPUT
+$CMD_HOME/service iptables save
