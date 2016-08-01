@@ -1,0 +1,27 @@
+CMD_HOME="/sbin"
+SCRIPT_HOME="/root/ss-script"
+TMP_HOME="$SCRIPT_HOME/tmp"
+date=`date +%Y%m%d%H%M%S`
+port=$1
+portLineNumberFile="$TMP_HOME/port-line-number-$date"
+
+#generate port line number file
+$CMD_HOME/iptables -nL SS-OUTPUT --line-number | awk '$2=="ACCEPT" {print $1,$8}' | sed 's/spt://g' | awk '$2=="'$port'" {print $1}' > $portLineNumberFile
+
+if [ ! -s $portLineNumberFile ]
+then
+    echo "Can not find port:$port record"
+    rm $portLineNumberFile
+    exit 0
+fi
+
+while read line
+do
+
+    lineNum=($line)
+    $CMD_HOME/iptables -Z SS-OUTPUT $lineNum
+
+done < $portLineNumberFile
+
+echo "Clear port:$port network flow"
+rm $portLineNumberFile

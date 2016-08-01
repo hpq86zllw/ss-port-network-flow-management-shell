@@ -1,0 +1,76 @@
+getNetworkFlow(){
+
+    networkFlowFile=$1
+    port=$2
+
+    awk 'BEGIN{totalBytes=0}{if($2=="'$port'")totalBytes+=$1}END{print totalBytes}' $networkFlowFile
+
+}
+
+disablePort(){
+
+    disabledPortFile=$1
+    port=$2
+    isDisabled=0
+
+    while read line
+    do
+        disabledPort=$line
+        if [ $port -eq $disabledPort ]
+        then
+            isDisabled=1
+            break
+        fi
+    done < $disabledPortFile
+
+    if [ $isDisabled -eq 1 ]
+    then
+        return 1
+    fi
+    echo "Disable port:$port"
+    $CMD_HOME/iptables -I SS-INPUT -p udp --dport $port -j DROP
+    $CMD_HOME/iptables -I SS-INPUT -p tcp --dport $port -j DROP
+    return 0
+
+}
+
+CMD_HOME="/sbin"
+SCRIPT_HOME="/root/ss-script"
+TMP_HOME="$SCRIPT_HOME/tmp"
+date=`date +%Y%m%d%H%M%S`
+networkFlowFile="$TMP_HOME/network-flow-$date"
+disabledPortFile="$TMP_HOME/disabled-port-$date"
+portDataFile="$SCRIPT_HOME/port.dat"
+hasNewDisabledPort=0
+
+#generate network flow file
+$CMD_HOME/iptables -nvxL SS-OUTPUT | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowFile
+#generate disabled port file
+$CMD_HOME/iptables -nvxL SS-INPUT | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortFile
+
+while read line
+do
+
+    portData=($line)
+    port=${portData[0]}
+    maxNetworkFlow=${portData[1]}
+
+    networkFlow=`getNetworkFlow $networkFlowFile $port`
+#    echo "port:$port,maxNetworkFlow:$maxNetworkFlow,currentNetworkFlow:$networkFlow"
+    if [ $networkFlow -ge $maxNetworkFlow ]
+    then
+        disablePort $disabledPortFile $port
+        if [ $? -eq 0 ]
+        then
+            hasNewDisabledPort=1
+        fi
+    fi
+
+done < $portDataFile
+
+if [ $hasNewDisabledPort -eq 1 ]
+then
+    $CMD_HOME/service iptables save
+fi
+rm $networkFlowFile
+rm $disabledPortFile

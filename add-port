@@ -1,0 +1,13 @@
+CMD_HOME="/sbin"
+port=$1
+
+recordNum=`$CMD_HOME/iptables -nL SS-OUTPUT | awk '$1=="ACCEPT" {print $7}' | sed 's/spt://g' | awk '$1=="'$port'" {print $1}' | wc -l`
+if [ $recordNum -ne 0 ]
+then
+    echo "port:$port is already added"
+    exit 0
+fi
+
+$CMD_HOME/iptables -A SS-OUTPUT -p tcp --sport $port -j ACCEPT
+$CMD_HOME/iptables -A SS-OUTPUT -p udp --sport $port -j ACCEPT
+echo "Add port:$port"
