@@ -1,3 +1,13 @@
+SCRIPT_HOME="/root/ss-script"
+source $SCRIPT_HOME/env
+
+date=`date +%Y%m%d%H%M%S`
+TMP_HOME="$SCRIPT_HOME/tmp"
+networkFlowFile="$TMP_HOME/network-flow-$date"
+disabledPortFile="$TMP_HOME/disabled-port-$date"
+portDataFile="$SCRIPT_HOME/port.dat"
+hasNewDisabledPort=0
+
 getNetworkFlow(){
 
     networkFlowFile=$1
@@ -28,25 +38,16 @@ disablePort(){
         return 1
     fi
     echo "Disable port:$port"
-    $CMD_HOME/iptables -I SS-INPUT -p udp --dport $port -j DROP
-    $CMD_HOME/iptables -I SS-INPUT -p tcp --dport $port -j DROP
+    $IPTABLES -I $INPUT_CHAIN_NAME -p udp --dport $port -j DROP
+    $IPTABLES -I $INPUT_CHAIN_NAME -p tcp --dport $port -j DROP
     return 0
 
 }
 
-CMD_HOME="/sbin"
-SCRIPT_HOME="/root/ss-script"
-TMP_HOME="$SCRIPT_HOME/tmp"
-date=`date +%Y%m%d%H%M%S`
-networkFlowFile="$TMP_HOME/network-flow-$date"
-disabledPortFile="$TMP_HOME/disabled-port-$date"
-portDataFile="$SCRIPT_HOME/port.dat"
-hasNewDisabledPort=0
-
 #generate network flow file
-$CMD_HOME/iptables -nvxL SS-OUTPUT | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowFile
+$IPTABLES -nvxL $OUTPUT_CHAIN_NAME | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowFile
 #generate disabled port file
-$CMD_HOME/iptables -nvxL SS-INPUT | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortFile
+$IPTABLES -nvxL $INPUT_CHAIN_NAME | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortFile
 
 while read line
 do
@@ -70,7 +71,7 @@ done < $portDataFile
 
 if [ $hasNewDisabledPort -eq 1 ]
 then
-    $CMD_HOME/service iptables save
+    $SERVICE iptables save
 fi
 rm $networkFlowFile
 rm $disabledPortFile

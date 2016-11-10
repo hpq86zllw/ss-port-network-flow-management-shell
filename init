@@ -1,7 +1,8 @@
-CMD_HOME="/sbin"
+SCRIPT_HOME="/root/ss-script"
+source $SCRIPT_HOME/env
 
-$CMD_HOME/iptables -N SS-INPUT
-$CMD_HOME/iptables -A INPUT -j SS-INPUT
-$CMD_HOME/iptables -N SS-OUTPUT
-$CMD_HOME/iptables -A OUTPUT -j SS-OUTPUT
-$CMD_HOME/service iptables save
+$IPTABLES -N $INPUT_CHAIN_NAME
+$IPTABLES -A INPUT -j $INPUT_CHAIN_NAME
+$IPTABLES -N $OUTPUT_CHAIN_NAME
+$IPTABLES -A OUTPUT -j $OUTPUT_CHAIN_NAME
+$SERVICE iptables save
