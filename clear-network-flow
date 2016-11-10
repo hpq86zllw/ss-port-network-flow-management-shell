@@ -16,6 +16,7 @@ then
     exit 0
 fi
 
+echo "Clear port:$port network flow"
 while read line
 do
 
@@ -24,5 +25,4 @@ do
 
 done < $portLineNumberFile
 
-echo "Clear port:$port network flow"
 rm $portLineNumberFile
