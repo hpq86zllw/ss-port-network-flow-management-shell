@@ -56,7 +56,7 @@ do
 
     networkFlow=`getNetworkFlow $NETWORK_FLOW_TEMP_FILE $port`
 #    echo "port:$port,maxNetworkFlow:$maxNetworkFlow,currentNetworkFlow:$networkFlow"
-	echo -e "$port $maxNetworkFlow $networkFlow" >> $PORT_NETWORK_FLOW_DATA_FILE
+	echo "$port $maxNetworkFlow $networkFlow" >> $PORT_NETWORK_FLOW_DATA_FILE
     if [ $networkFlow -ge $maxNetworkFlow ]
     then
         disablePort $DISABLED_PORT_TEMP_FILE $port
