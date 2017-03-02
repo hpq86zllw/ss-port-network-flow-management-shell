@@ -1,11 +1,11 @@
-SCRIPT_HOME="/root/ss-script"
-source $SCRIPT_HOME/env
+source $SS_SCRIPT_HOME/env
 
 date=`date +%Y%m%d%H%M%S`
-TMP_HOME="$SCRIPT_HOME/tmp"
-networkFlowFile="$TMP_HOME/network-flow-$date"
-disabledPortFile="$TMP_HOME/disabled-port-$date"
-portDataFile="$SCRIPT_HOME/port.dat"
+TMP_HOME="$SS_SCRIPT_HOME/tmp"
+networkFlowTempFile="$TMP_HOME/network-flow-$date"
+disabledPortTempFile="$TMP_HOME/disabled-port-$date"
+portDataFile="$SS_SCRIPT_HOME/port.dat"
+portNetworkFlowDataFile="$SS_SCRIPT_HOME/port-network-flow.dat"
 hasNewDisabledPort=0
 
 getNetworkFlow(){
@@ -45,10 +45,12 @@ disablePort(){
 }
 
 #generate network flow file
-$IPTABLES -nvxL $OUTPUT_CHAIN_NAME | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowFile
+$IPTABLES -nvxL $OUTPUT_CHAIN_NAME | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowTempFile
 #generate disabled port file
-$IPTABLES -nvxL $INPUT_CHAIN_NAME | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortFile
+$IPTABLES -nvxL $INPUT_CHAIN_NAME | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortTempFile
 
+rm $portNetworkFlowDataFile
+echo -n "" > $portNetworkFlowDataFile
 while read line
 do
 
@@ -56,11 +58,12 @@ do
     port=${portData[0]}
     maxNetworkFlow=${portData[1]}
 
-    networkFlow=`getNetworkFlow $networkFlowFile $port`
+    networkFlow=`getNetworkFlow $networkFlowTempFile $port`
 #    echo "port:$port,maxNetworkFlow:$maxNetworkFlow,currentNetworkFlow:$networkFlow"
+	echo -e "$port $maxNetworkFlow $networkFlow" >> $portNetworkFlowDataFile
     if [ $networkFlow -ge $maxNetworkFlow ]
     then
-        disablePort $disabledPortFile $port
+        disablePort $disabledPortTempFile $port
         if [ $? -eq 0 ]
         then
             hasNewDisabledPort=1
@@ -73,5 +76,5 @@ if [ $hasNewDisabledPort -eq 1 ]
 then
     $SERVICE iptables save
 fi
-rm $networkFlowFile
-rm $disabledPortFile
+rm $networkFlowTempFile
+rm $disabledPortTempFile

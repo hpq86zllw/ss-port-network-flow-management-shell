@@ -1,5 +1,4 @@
-SCRIPT_HOME="/root/ss-script"
-source $SCRIPT_HOME/env
+source $SS_SCRIPT_HOME/env
 
 port=$1
 

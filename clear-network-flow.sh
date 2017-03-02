@@ -1,9 +1,8 @@
-SCRIPT_HOME="/root/ss-script"
-source $SCRIPT_HOME/env
+source $SS_SCRIPT_HOME/env
 
 port=$1
 date=`date +%Y%m%d%H%M%S`
-TMP_HOME="$SCRIPT_HOME/tmp"
+TMP_HOME="$SS_SCRIPT_HOME/tmp"
 portLineNumberFile="$TMP_HOME/port-line-number-$date"
 
 #generate port line number file
