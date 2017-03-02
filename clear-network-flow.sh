@@ -1,17 +1,16 @@
+source ~/.bash_profile
 source $SS_SCRIPT_HOME/env
 
 port=$1
 date=`date +%Y%m%d%H%M%S`
-TMP_HOME="$SS_SCRIPT_HOME/tmp"
-portLineNumberFile="$TMP_HOME/port-line-number-$date"
 
 #generate port line number file
-iptables -nL $OUTPUT_CHAIN_NAME --line-number | awk '$2=="ACCEPT" {print $1,$8}' | sed 's/spt://g' | awk '$2=="'$port'" {print $1}' > $portLineNumberFile
+iptables -nL $OUTPUT_CHAIN_NAME --line-number | awk '$2=="ACCEPT" {print $1,$8}' | sed 's/spt://g' | awk '$2=="'$port'" {print $1}' > $PORT_LINE_NUMBER_FILE
 
-if [ ! -s $portLineNumberFile ]
+if [ ! -s $PORT_LINE_NUMBER_FILE ]
 then
     echo "Can not find port:$port record"
-    rm $portLineNumberFile
+    rm -f $PORT_LINE_NUMBER_FILE
     exit 0
 fi
 
@@ -22,6 +21,6 @@ do
     lineNum=($line)
     iptables -Z $OUTPUT_CHAIN_NAME $lineNum
 
-done < $portLineNumberFile
+done < $PORT_LINE_NUMBER_FILE
 
-rm $portLineNumberFile
+rm -f $PORT_LINE_NUMBER_FILE

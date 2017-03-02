@@ -1,3 +1,8 @@
-PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/bin
 INPUT_CHAIN_NAME="SS-INPUT"
 OUTPUT_CHAIN_NAME="SS-OUTPUT"
+TMP_HOME="$SS_SCRIPT_HOME/tmp"
+PORT_DATA_FILE="$SS_SCRIPT_HOME/port.dat"
+PORT_NETWORK_FLOW_DATA_FILE="$SS_SCRIPT_HOME/port-network-flow.dat"
+NETWORK_FLOW_TEMP_FILE="$TMP_HOME/network-flow-$date"
+DISABLED_PORT_TEMP_FILE="$TMP_HOME/disabled-port-$date"
+PORT_LINE_NUMBER_FILE="$TMP_HOME/disabled-port-$date"

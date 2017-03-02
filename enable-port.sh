@@ -1,3 +1,4 @@
+source ~/.bash_profile
 source $SS_SCRIPT_HOME/env
 
 port=$1

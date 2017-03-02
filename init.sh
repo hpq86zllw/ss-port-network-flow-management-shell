@@ -1,7 +1,7 @@
+source ~/.bash_profile
 source $SS_SCRIPT_HOME/env
 
-portDataFile="$SS_SCRIPT_HOME/port.dat"
-
+mkdir $TMP_HOME
 iptables -N $INPUT_CHAIN_NAME
 iptables -A INPUT -j $INPUT_CHAIN_NAME
 iptables -N $OUTPUT_CHAIN_NAME
@@ -16,4 +16,4 @@ do
 
     $SS_SCRIPT_HOME/add-port.sh $port
 
-done < $portDataFile
+done < $PORT_DATA_FILE
