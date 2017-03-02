@@ -38,16 +38,16 @@ disablePort(){
         return 1
     fi
     echo "Disable port:$port"
-    $IPTABLES -I $INPUT_CHAIN_NAME -p udp --dport $port -j DROP
-    $IPTABLES -I $INPUT_CHAIN_NAME -p tcp --dport $port -j DROP
+    iptables -I $INPUT_CHAIN_NAME -p udp --dport $port -j DROP
+    iptables -I $INPUT_CHAIN_NAME -p tcp --dport $port -j DROP
     return 0
 
 }
 
 #generate network flow file
-$IPTABLES -nvxL $OUTPUT_CHAIN_NAME | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowTempFile
+iptables -nvxL $OUTPUT_CHAIN_NAME | awk '$3=="ACCEPT" {print $2,$11}' | sed 's/spt://g' > $networkFlowTempFile
 #generate disabled port file
-$IPTABLES -nvxL $INPUT_CHAIN_NAME | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortTempFile
+iptables -nvxL $INPUT_CHAIN_NAME | awk '$3=="DROP" {print $11}' | sed 's/dpt://g' > $disabledPortTempFile
 
 rm $portNetworkFlowDataFile
 echo -n "" > $portNetworkFlowDataFile
@@ -74,7 +74,7 @@ done < $portDataFile
 
 if [ $hasNewDisabledPort -eq 1 ]
 then
-    $SERVICE iptables save
+    service iptables save
 fi
 rm $networkFlowTempFile
 rm $disabledPortTempFile

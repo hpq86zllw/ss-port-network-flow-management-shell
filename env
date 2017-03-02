@@ -1,6 +1,3 @@
-BIN_HOME="/sbin"
-IPTABLES="$BIN_HOME/iptables"
-SERVICE="$BIN_HOME/service"
-
+PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/bin
 INPUT_CHAIN_NAME="SS-INPUT"
 OUTPUT_CHAIN_NAME="SS-OUTPUT"
